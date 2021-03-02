@@ -13,6 +13,7 @@ typedef enum {
 
 typedef enum {
     ND_ADD,  // +
+    ND_EQ,   // ==
     ND_SUB,  // -
     ND_MUL,  // *
     ND_DIV,  // /
@@ -42,6 +43,9 @@ char* user_input;
 Token* token;
 
 Node* expr(void);
+Node* equality(void);
+Node* relational(void);
+Node* add(void);
 Node* mul(void);
 Node* unary(void);
 Node* primary(void);
@@ -113,6 +117,12 @@ Token* tokenize() {
             continue;
         }
 
+        if (memcmp(p, "==", 2) == 0) {
+            cur = new_token(TK_RESERVED, cur, p, 2);
+            p += 2;
+            continue;
+        }
+
         if (strchr("+-*/()", *p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
             continue;
@@ -160,7 +170,7 @@ Node* primary(void) {
 
 Node* unary(void) {
     if (consume("+"))
-        return primary();
+        return unary();
     if (consume("-"))
         return new_node(ND_SUB, new_node_num(0), unary());
     return primary();
@@ -179,7 +189,7 @@ Node* mul(void) {
     }
 }
 
-Node* expr(void) {
+Node* add(void) {
     Node* node = mul();
 
     for (;;) {
@@ -190,6 +200,26 @@ Node* expr(void) {
         else
             return node;
     }
+}
+
+Node* relational(void) {
+    Node* node = add();
+    return node;
+}
+
+Node* equality(void) {
+    Node* node = relational();
+
+    for (;;) {
+        if (consume("=="))
+            node = new_node(ND_EQ, node, relational());
+        else
+            return node;
+    }
+}
+
+Node* expr(void) {
+    return equality();
 }
 
 void gen(Node* node) {
@@ -207,6 +237,11 @@ void gen(Node* node) {
     switch (node->kind) {
     case ND_ADD:
         printf("  add rax, rdi\n");
+        break;
+    case ND_EQ:
+        printf("  cmp rax, rdi\n");
+        printf("  sete al\n");
+        printf("  movzb rax, al\n");
         break;
     case ND_SUB:
         printf("  sub rax, rdi\n");

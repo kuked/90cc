@@ -26,4 +26,7 @@ assert 4  "(3 + 5) / 2"
 assert 10 "-10 + 20"
 assert 20 "- -20"
 assert 30 "- - +30"
+
+assert 1  "0 == 0"
+assert 0  "0 == 1"
 echo OK
