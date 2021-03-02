@@ -16,6 +16,7 @@ typedef enum {
     ND_EQ,   // ==
     ND_SUB,  // -
     ND_MUL,  // *
+    ND_NQ,   // !=
     ND_DIV,  // /
     ND_NUM,  // integer
 } NodeKind;
@@ -117,7 +118,7 @@ Token* tokenize() {
             continue;
         }
 
-        if (memcmp(p, "==", 2) == 0) {
+        if (memcmp(p, "==", 2) == 0 || memcmp(p, "!=", 2) == 0) {
             cur = new_token(TK_RESERVED, cur, p, 2);
             p += 2;
             continue;
@@ -213,6 +214,8 @@ Node* equality(void) {
     for (;;) {
         if (consume("=="))
             node = new_node(ND_EQ, node, relational());
+        if (consume("!="))
+            node = new_node(ND_NQ, node, relational());
         else
             return node;
     }
@@ -248,6 +251,11 @@ void gen(Node* node) {
         break;
     case ND_MUL:
         printf("  imul rax, rdi\n");
+        break;
+    case ND_NQ:
+        printf("  cmp rax, rdi\n");
+        printf("  setne al\n");
+        printf("  movzb rax, al\n");
         break;
     case ND_DIV:
         printf("  cqo\n");
