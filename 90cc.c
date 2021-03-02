@@ -15,6 +15,10 @@ typedef enum {
     ND_ADD,  // +
     ND_EQ,   // ==
     ND_SUB,  // -
+    ND_GE,   // >=
+    ND_GT,   // >
+    ND_LE,   // <=
+    ND_LT,   // <
     ND_MUL,  // *
     ND_NQ,   // !=
     ND_DIV,  // /
@@ -118,13 +122,13 @@ Token* tokenize() {
             continue;
         }
 
-        if (memcmp(p, "==", 2) == 0 || memcmp(p, "!=", 2) == 0) {
+        if (memcmp(p, "==", 2) == 0 || memcmp(p, "!=", 2) == 0 || memcmp(p, "<=", 2) == 0 || memcmp(p, ">=", 2) == 0) {
             cur = new_token(TK_RESERVED, cur, p, 2);
             p += 2;
             continue;
         }
 
-        if (strchr("+-*/()", *p)) {
+        if (strchr("+-*/()<>", *p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
             continue;
         }
@@ -205,6 +209,19 @@ Node* add(void) {
 
 Node* relational(void) {
     Node* node = add();
+
+    for (;;) {
+        if (consume("<"))
+            node = new_node(ND_LT, node, add());
+        else if (consume("<="))
+            node = new_node(ND_LE, node, add());
+        else if (consume("<"))
+            node = new_node(ND_GT, node, add());
+        else if (consume(">="))
+            node = new_node(ND_GE, node, add());
+        else
+            return node;
+    }
     return node;
 }
 
@@ -246,8 +263,28 @@ void gen(Node* node) {
         printf("  sete al\n");
         printf("  movzb rax, al\n");
         break;
+    case ND_GE:
+        printf("  cmp rdi, rax\n");
+        printf("  setle al\n");
+        printf("  movzb rax, al\n");
+        break;
+    case ND_GT:
+        printf("  cmp rdi, rax\n");
+        printf("  setl al\n");
+        printf("  movzb rax, al\n");
+        break;
     case ND_SUB:
         printf("  sub rax, rdi\n");
+        break;
+    case ND_LE:
+        printf("  cmp rax, rdi\n");
+        printf("  setle al\n");
+        printf("  movzb rax, al\n");
+        break;
+    case ND_LT:
+        printf("  cmp rax, rdi\n");
+        printf("  setl al\n");
+        printf("  movzb rax, al\n");
         break;
     case ND_MUL:
         printf("  imul rax, rdi\n");
