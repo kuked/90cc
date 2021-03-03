@@ -1,6 +1,12 @@
-CFLAGS=-std=c11 -g -static
+CFLAGS=-std=c11 -g -static -Wall -Wno-switch
 
-90cc: 90cc.c
+SRCS=$(wildcard *.c)
+OBJS=$(SRCS:.c=.o)
+
+90cc: $(OBJS)
+		$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(OBJS): 90cc.h
 
 test: 90cc
 		./test.sh
