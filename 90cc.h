@@ -8,4 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#endif  /* _90CC_H */
+typedef struct Node Node;
+typedef struct Token Token;
+
+// 90cc.c
+Node* expr(void);
+Token* tokenize();
+void gen(Node* node);
+
+// main.c
+extern Token* token;
+extern char* user_input;
+
+#endif  // _90CC_H

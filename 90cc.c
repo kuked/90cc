@@ -20,9 +20,6 @@ typedef enum {
     ND_NUM,  // integer
 } NodeKind;
 
-typedef struct Token Token;
-typedef struct Node Node;
-
 struct Token {
     TokenKind kind;
     Token* next;
@@ -37,10 +34,6 @@ struct Node {
     Node* rhs;
     int val;
 };
-
-char* user_input;
-
-Token* token;
 
 Node* expr(void);
 Node* equality(void);
@@ -296,25 +289,4 @@ void gen(Node* node) {
     }
 
     printf("  push rax\n");
-}
-
-int main(int argc, char** argv) {
-    if (argc != 2) {
-        fprintf(stderr, "usage: 90cc command");
-        return 1;
-    }
-
-    user_input = argv[1];
-    token = tokenize();
-    Node* node = expr();
-  
-    printf(".intel_syntax noprefix\n");
-    printf(".globl main\n");
-    printf("main:\n");
-
-    gen(node);
-
-    printf("  pop rax\n");
-    printf("  ret\n");
-    return 0;
 }
