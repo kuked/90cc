@@ -6,19 +6,6 @@ typedef enum {
     TK_EOF,
 } TokenKind;
 
-typedef enum {
-    ND_ADD,  // +
-    ND_EQ,   // ==
-    ND_SUB,  // -
-    ND_GE,   // >=
-    ND_GT,   // >
-    ND_LE,   // <=
-    ND_LT,   // <
-    ND_MUL,  // *
-    ND_NQ,   // !=
-    ND_DIV,  // /
-    ND_NUM,  // integer
-} NodeKind;
 
 struct Token {
     TokenKind kind;
@@ -28,12 +15,6 @@ struct Token {
     int len;
 };
 
-struct Node {
-    NodeKind kind;
-    Node* lhs;
-    Node* rhs;
-    int val;
-};
 
 Node* expr(void);
 Node* equality(void);
@@ -228,65 +209,4 @@ Node* equality(void) {
 
 Node* expr(void) {
     return equality();
-}
-
-void gen(Node* node) {
-    if (node->kind == ND_NUM) {
-        printf("  push %d\n", node->val);
-        return;
-    }
-
-    gen(node->lhs);
-    gen(node->rhs);
-
-    printf("  pop rdi\n");
-    printf("  pop rax\n");
-
-    switch (node->kind) {
-    case ND_ADD:
-        printf("  add rax, rdi\n");
-        break;
-    case ND_EQ:
-        printf("  cmp rax, rdi\n");
-        printf("  sete al\n");
-        printf("  movzb rax, al\n");
-        break;
-    case ND_GE:
-        printf("  cmp rdi, rax\n");
-        printf("  setle al\n");
-        printf("  movzb rax, al\n");
-        break;
-    case ND_GT:
-        printf("  cmp rdi, rax\n");
-        printf("  setl al\n");
-        printf("  movzb rax, al\n");
-        break;
-    case ND_SUB:
-        printf("  sub rax, rdi\n");
-        break;
-    case ND_LE:
-        printf("  cmp rax, rdi\n");
-        printf("  setle al\n");
-        printf("  movzb rax, al\n");
-        break;
-    case ND_LT:
-        printf("  cmp rax, rdi\n");
-        printf("  setl al\n");
-        printf("  movzb rax, al\n");
-        break;
-    case ND_MUL:
-        printf("  imul rax, rdi\n");
-        break;
-    case ND_NQ:
-        printf("  cmp rax, rdi\n");
-        printf("  setne al\n");
-        printf("  movzb rax, al\n");
-        break;
-    case ND_DIV:
-        printf("  cqo\n");
-        printf("  idiv rdi\n");
-        break;
-    }
-
-    printf("  push rax\n");
 }
