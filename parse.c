@@ -1,29 +1,5 @@
 #include "90cc.h"
 
-typedef enum {
-    TK_RESERVED,
-    TK_NUM,
-    TK_EOF,
-} TokenKind;
-
-
-struct Token {
-    TokenKind kind;
-    Token* next;
-    int val;
-    char* str;
-    int len;
-};
-
-
-Node* expr(void);
-Node* equality(void);
-Node* relational(void);
-Node* add(void);
-Node* mul(void);
-Node* unary(void);
-Node* primary(void);
-
 void error(char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);

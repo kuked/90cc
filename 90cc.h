@@ -34,14 +34,43 @@ struct Node {
     int val;
 };
 
-// 90cc.c
-Node* expr(void);
-Token* tokenize();
+typedef enum {
+    TK_RESERVED,
+    TK_NUM,
+    TK_EOF,
+} TokenKind;
 
+struct Token {
+    TokenKind kind;
+    Token* next;
+    int val;
+    char* str;
+    int len;
+};
+
+//
+// parser.c
+//
+
+Token* tokenize();
+Node* primary(void);
+Node* unary(void);
+Node* mul(void);
+Node* add(void);
+Node* relational(void);
+Node* equality(void);
+Node* expr(void);
+
+//
 // codegen.c
+//
+
 void gen(Node* node);
 
+//
 // main.c
+//
+
 extern Token* token;
 extern char* user_input;
 
