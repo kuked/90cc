@@ -22,14 +22,14 @@ void error_at(char* loc, char* fmt, ...) {
 }
 
 bool consume(char *op) {
-    if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
+    if (token->kind != TK_RESERVED || (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
         return false;
     token = token->next;
     return true;
 }
 
 void expect(char* op) {
-    if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
+    if (token->kind != TK_RESERVED || (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
         error_at(token->str, "It's not '%s'.", op);
     token = token->next;
 }
