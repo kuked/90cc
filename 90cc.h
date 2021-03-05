@@ -24,6 +24,9 @@ typedef enum {
     ND_GT,   // >
     ND_GE,   // >=
 
+    ND_LVAR,      // local variable
+    ND_ASSIGN,    // =
+
     ND_NUM,  // integer
 } NodeKind;
 
@@ -32,10 +35,12 @@ struct Node {
     Node* lhs;
     Node* rhs;
     int val;
+    int offset;
 };
 
 typedef enum {
     TK_RESERVED,
+    TK_IDENT,
     TK_NUM,
     TK_EOF,
 } TokenKind;
@@ -51,7 +56,8 @@ struct Token {
 //
 // parser.c
 //
-
+Node* code[100];
+void error(char* fmt, ...);
 Token* tokenize();
 Node* primary(void);
 Node* unary(void);
@@ -59,7 +65,10 @@ Node* mul(void);
 Node* add(void);
 Node* relational(void);
 Node* equality(void);
+Node* assign(void);
 Node* expr(void);
+Node* stmt(void);
+void program();
 
 //
 // codegen.c

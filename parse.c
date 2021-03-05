@@ -1,5 +1,7 @@
 #include "90cc.h"
 
+Node* code[100];
+
 void error(char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -27,6 +29,16 @@ bool consume(char *op) {
     token = token->next;
     return true;
 }
+
+Token* consume_ident(void) {
+    if (token->kind == TK_IDENT) {
+        Token *tok = token;
+        token = token->next;
+        return tok;
+    }
+    return NULL;
+}
+
 
 void expect(char* op) {
     if (token->kind != TK_RESERVED || (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
@@ -73,8 +85,13 @@ Token* tokenize() {
             continue;
         }
 
-        if (strchr("+-*/()<>", *p)) {
+        if (strchr("+-*/()<>;=", *p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
+            continue;
+        }
+
+        if ('a' <= *p && *p <= 'z') {
+            cur = new_token(TK_IDENT, cur, p++, 1);
             continue;
         }
 
@@ -112,6 +129,14 @@ Node* primary(void) {
     if (consume("(")) {
         Node* node = expr();
         expect(")");
+        return node;
+    }
+
+    Token* tok = consume_ident();
+    if (tok) {
+        Node* node = calloc(1, sizeof(Node));
+        node->kind = ND_LVAR;
+        node->offset = (tok->str[0] - 'a' + 1) * 8;
         return node;
     }
 
@@ -160,7 +185,7 @@ Node* relational(void) {
             node = new_node(ND_LT, node, add());
         else if (consume("<="))
             node = new_node(ND_LE, node, add());
-        else if (consume("<"))
+        else if (consume(">"))
             node = new_node(ND_GT, node, add());
         else if (consume(">="))
             node = new_node(ND_GE, node, add());
@@ -183,6 +208,26 @@ Node* equality(void) {
     }
 }
 
+Node* assign(void) {
+    Node *node = equality();
+    if (consume("="))
+        node = new_node(ND_ASSIGN, node, assign());
+    return node;
+}
+
 Node* expr(void) {
-    return equality();
+    return assign();
+}
+
+Node* stmt() {
+    Node* node = expr();
+    expect(";");
+    return node;
+}
+
+void program(void) {
+    int i = 0;
+    while (!at_eof())
+        code[i++] = stmt();
+    code[i] = NULL;
 }
