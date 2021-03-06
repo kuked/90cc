@@ -56,6 +56,16 @@ struct Token {
 //
 // parser.c
 //
+
+// local variable
+typedef struct LVar LVar;
+struct LVar {
+    LVar* next;
+    char* name;
+    int len;
+    int offset;
+};
+
 Node* code[100];
 void error(char* fmt, ...);
 Token* tokenize();
