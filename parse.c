@@ -92,7 +92,7 @@ Token* tokenize() {
             continue;
         }
 
-        if ('a' <= *p && *p <= 'z') {
+        if (isalpha(*p)) {
             cur = new_token(TK_IDENT, cur, p++, 1);
             continue;
         }
@@ -105,7 +105,7 @@ Token* tokenize() {
             continue;
         }
 
-        error_at(p, "I can't tokenize.");
+        error_at(p, "I can't tokenize it any more.");
     }
 
     new_token(TK_EOF, cur, p, 0);
