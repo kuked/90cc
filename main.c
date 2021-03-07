@@ -1,6 +1,5 @@
 #include "90cc.h"
 
-Token* token;
 char* user_input;
 
 int main(int argc, char** argv) {
@@ -10,7 +9,7 @@ int main(int argc, char** argv) {
     }
 
     user_input = argv[1];
-    token = tokenize();
+    tokenize();
     program();
   
     printf(".intel_syntax noprefix\n");

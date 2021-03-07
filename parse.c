@@ -1,5 +1,6 @@
 #include "90cc.h"
 
+Token* token;
 Node* code[100];
 LVar* locals;
 
@@ -68,7 +69,7 @@ Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     return tok;
 }
 
-Token* tokenize() {
+void tokenize() {
     char*p = user_input;
     Token head;
     head.next = NULL;
@@ -109,7 +110,7 @@ Token* tokenize() {
     }
 
     new_token(TK_EOF, cur, p, 0);
-    return head.next;
+    token = head.next;
 }
 
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {

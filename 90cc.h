@@ -8,9 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Node Node;
-typedef struct Token Token;
-
 typedef enum {
     ND_ADD,  // +
     ND_SUB,  // -
@@ -30,6 +27,7 @@ typedef enum {
     ND_NUM,  // integer
 } NodeKind;
 
+typedef struct Node Node;
 struct Node {
     NodeKind kind;
     Node* lhs;
@@ -45,6 +43,7 @@ typedef enum {
     TK_EOF,
 } TokenKind;
 
+typedef struct Token Token;
 struct Token {
     TokenKind kind;
     Token* next;
@@ -68,7 +67,7 @@ struct LVar {
 
 Node* code[100];
 void error(char* fmt, ...);
-Token* tokenize();
+void tokenize(void);
 Node* primary(void);
 Node* unary(void);
 Node* mul(void);
@@ -90,7 +89,6 @@ void gen(Node* node);
 // main.c
 //
 
-extern Token* token;
 extern char* user_input;
 
 #endif  // _90CC_H
