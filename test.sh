@@ -51,4 +51,5 @@ assert 90 "A = 9; B = 10; A * B;"
 
 assert 6 "one = 1; two = 2; three = 3; one + two + three;"
 assert 6 "one = 1; two = 2; three = 3; one * two * three;"
+assert 6 "one_two = 12; one_two / 2;"
 echo OK

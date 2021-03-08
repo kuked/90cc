@@ -96,7 +96,7 @@ void tokenize() {
         if (isalpha(*p)) {
             cur = new_token(TK_IDENT, cur, p, 0);
             char *q = p;
-            while (isalnum(*p)) p++;
+            while (isalnum(*p) || *p == '_') p++;
             cur->len = p - q;
             continue;
         }
