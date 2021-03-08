@@ -94,7 +94,10 @@ void tokenize() {
         }
 
         if (isalpha(*p)) {
-            cur = new_token(TK_IDENT, cur, p++, 1);
+            cur = new_token(TK_IDENT, cur, p, 0);
+            char *q = p;
+            while (isalnum(*p)) p++;
+            cur->len = p - q;
             continue;
         }
 

@@ -48,4 +48,7 @@ assert 1  "1 > 0;"
 assert 90 "a = 9; b = 10; a * b;"
 assert 90 "a = 9; b = 10; a = a * b; a;"
 assert 90 "A = 9; B = 10; A * B;"
+
+assert 6 "one = 1; two = 2; three = 3; one + two + three;"
+assert 6 "one = 1; two = 2; three = 3; one * two * three;"
 echo OK
