@@ -52,4 +52,7 @@ assert 90 "A = 9; B = 10; A * B;"
 assert 6 "one = 1; two = 2; three = 3; one + two + three;"
 assert 6 "one = 1; two = 2; three = 3; one * two * three;"
 assert 6 "one_two = 12; one_two / 2;"
+assert 9 "return 9;"
+assert 3 "return 3; return 6;"
+assert 14  "a = 3; b = (5 * 6) - 8; return a + (b / 2);"
 echo OK
