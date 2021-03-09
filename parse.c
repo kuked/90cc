@@ -60,6 +60,11 @@ bool at_eof() {
     return token->kind == TK_EOF;
 }
 
+// Determine whether alphanumeric characters or underscores are used.
+bool is_alnum(char c) {
+    return isalnum(c) != 0 || c == '_';
+}
+
 Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     Token* tok = calloc(1, sizeof(Token));
     tok->kind = kind;
@@ -96,7 +101,7 @@ void tokenize() {
         if (isalpha(*p)) {
             cur = new_token(TK_IDENT, cur, p, 0);
             char *q = p;
-            while (isalnum(*p) || *p == '_') p++;
+            while (is_alnum(*p)) p++;
             cur->len = p - q;
             continue;
         }
