@@ -1,5 +1,10 @@
 #include "90cc.h"
 
+int count(void) {
+    static int i = 0;
+    return i++;
+}
+
 void gen_lval(Node* node) {
     if (node->kind != ND_LVAR)
         error("local variable.");
@@ -36,16 +41,18 @@ void gen(Node* node) {
         printf("  pop rbp\n");
         printf("  ret\n");
         return;
-    case ND_IF:
+    case ND_IF: {
+        int i = count();
         gen(node->cond);
         printf("  pop rax\n");
         printf("  cmp rax, 0\n");
-        printf("  je .Lelse\n");
+        printf("  je .Lelse%d\n", i);
         gen(node->then);
-        printf("  jmp .Lend\n");
-        printf(".Lelse:\n");
-        printf(".Lend:\n");
+        printf("  jmp .Lend%d\n", i);
+        printf(".Lelse%d:\n", i);
+        printf(".Lend%d:\n", i);
         return;
+    }
     }
 
     gen(node->lhs);
