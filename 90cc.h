@@ -24,6 +24,7 @@ typedef enum {
     ND_LVAR,      // local variable
     ND_ASSIGN,    // =
 
+    ND_IF,        // if
     ND_RETURN,    // return
 
     ND_NUM,  // integer
@@ -36,12 +37,16 @@ struct Node {
     Node* rhs;
     int val;
     int offset;
+
+    Node* cond;
+    Node* then;
 };
 
 typedef enum {
     TK_RESERVED,
     TK_IDENT,
     TK_NUM,
+    TK_IF,
     TK_RETURN,
     TK_EOF,
 } TokenKind;

@@ -55,4 +55,11 @@ assert 6 "one_two = 12; one_two / 2;"
 assert 9 "return 9;"
 assert 3 "return 3; return 6;"
 assert 14  "a = 3; b = (5 * 6) - 8; return a + (b / 2);"
+
+# TODO: incomplete, fix it later.
+assert 9 "if 0 return 6; return 9;"
+assert 6 "if 1 return 6; return 9;"
+assert 19 "a = 9; b = 10; if a == b return a * b; return a + b;"
+assert 90 "a = 9; b = 10; if a != b return a * b; return a + b;"
+
 echo OK

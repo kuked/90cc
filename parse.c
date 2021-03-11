@@ -26,7 +26,7 @@ void error_at(char* loc, char* fmt, ...) {
 }
 
 bool consume(char *op) {
-    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN) ||
+    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF) ||
         (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
         return false;
     token = token->next;
@@ -102,6 +102,10 @@ void tokenize() {
         if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
             cur = new_token(TK_RETURN, cur, p, 6);
             p += 6;
+            continue;
+        } else if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
+            cur = new_token(TK_IF, cur, p, 2);
+            p += 2;
             continue;
         }
 
@@ -264,6 +268,12 @@ Node* stmt() {
         node = calloc(1, sizeof(Node));
         node->kind = ND_RETURN;
         node->lhs = expr();
+    } else if (consume("if")) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_IF;
+        node->cond = expr();
+        node->then = stmt();
+        return node;
     } else {
         node = expr();
     }
