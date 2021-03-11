@@ -271,7 +271,9 @@ Node* stmt() {
     } else if (consume("if")) {
         node = calloc(1, sizeof(Node));
         node->kind = ND_IF;
+        expect("(");
         node->cond = expr();
+        expect(")");
         node->then = stmt();
         return node;
     } else {
