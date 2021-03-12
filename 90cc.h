@@ -73,6 +73,7 @@ struct LVar {
 //
 // tokenize.c
 //
+
 extern Token* token;
 extern LVar* locals;
 
