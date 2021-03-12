@@ -1,5 +1,7 @@
 #include "90cc.h"
 
+void error(char* fmt, ...);
+
 int count(void) {
     static int i = 0;
     return i++;
@@ -108,4 +110,12 @@ void gen(Node* node) {
     }
 
     printf("  push rax\n");
+}
+
+void error(char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
 }

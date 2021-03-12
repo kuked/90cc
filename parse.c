@@ -1,29 +1,6 @@
 #include "90cc.h"
 
-Token* token;
 Node* code[100];
-LVar* locals;
-
-void error(char* fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-    exit(1);
-}
-
-void error_at(char* loc, char* fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-
-    int pos = loc - user_input;
-    fprintf(stderr, "%s\n", user_input);
-    fprintf(stderr, "%*s", pos, " ");
-    fprintf(stderr, "^ ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
-    exit(1);
-}
 
 bool consume(char *op) {
     if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF) ||
@@ -59,77 +36,6 @@ int expect_number() {
 
 bool at_eof() {
     return token->kind == TK_EOF;
-}
-
-// Determine whether alphanumeric characters or underscores are used.
-bool is_alnum(char c) {
-    return isalnum(c) != 0 || c == '_';
-}
-
-Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
-    Token* tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->str = str;
-    tok->len = len;
-    cur->next = tok;
-    return tok;
-}
-
-void tokenize() {
-    char*p = user_input;
-    Token head;
-    head.next = NULL;
-    Token* cur = &head;
-    locals = calloc(1, sizeof(LVar));
-
-    while (*p) {
-        if (isspace(*p)) {
-            p++;
-            continue;
-        }
-
-        if (memcmp(p, "==", 2) == 0 || memcmp(p, "!=", 2) == 0 || memcmp(p, "<=", 2) == 0 || memcmp(p, ">=", 2) == 0) {
-            cur = new_token(TK_RESERVED, cur, p, 2);
-            p += 2;
-            continue;
-        }
-
-        if (strchr("+-*/()<>;=", *p)) {
-            cur = new_token(TK_RESERVED, cur, p++, 1);
-            continue;
-        }
-
-        if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
-            cur = new_token(TK_RETURN, cur, p, 6);
-            p += 6;
-            continue;
-        } else if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
-            cur = new_token(TK_IF, cur, p, 2);
-            p += 2;
-            continue;
-        }
-
-        if (isalpha(*p)) {
-            cur = new_token(TK_IDENT, cur, p, 0);
-            char *q = p;
-            while (is_alnum(*p)) p++;
-            cur->len = p - q;
-            continue;
-        }
-
-        if (isdigit(*p)) {
-            cur = new_token(TK_NUM, cur, p, 0);
-            char *q = p;
-            cur->val = strtol(p, &p, 10);
-            cur->len = p - q;
-            continue;
-        }
-
-        error_at(p, "I can't tokenize it any more.");
-    }
-
-    new_token(TK_EOF, cur, p, 0);
-    token = head.next;
 }
 
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {

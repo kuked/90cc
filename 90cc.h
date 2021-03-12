@@ -60,10 +60,6 @@ struct Token {
     int len;
 };
 
-//
-// parser.c
-//
-
 // local variable
 typedef struct LVar LVar;
 struct LVar {
@@ -72,6 +68,20 @@ struct LVar {
     int len;
     int offset;
 };
+
+
+//
+// tokenize.c
+//
+extern Token* token;
+extern LVar* locals;
+
+void error_at(char* loc, char* fmt, ...);
+void tokenize(void);
+
+//
+// parser.c
+//
 
 Node* code[100];
 void error(char* fmt, ...);
@@ -86,6 +96,7 @@ Node* assign(void);
 Node* expr(void);
 Node* stmt(void);
 void program();
+
 
 //
 // codegen.c
