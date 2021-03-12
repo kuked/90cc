@@ -83,18 +83,9 @@ void tokenize(void);
 // parser.c
 //
 
-Node* code[100];
+extern Node* code[100];
+
 void error(char* fmt, ...);
-void tokenize(void);
-Node* primary(void);
-Node* unary(void);
-Node* mul(void);
-Node* add(void);
-Node* relational(void);
-Node* equality(void);
-Node* assign(void);
-Node* expr(void);
-Node* stmt(void);
 void program();
 
 

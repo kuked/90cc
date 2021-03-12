@@ -1,23 +1,24 @@
 #include "90cc.h"
 
 void error(char* fmt, ...);
+static int count(void);
+static void gen_lval(Node* node);
 
-int count(void) {
-    static int i = 0;
-    return i++;
-}
-
-void gen_lval(Node* node) {
-    if (node->kind != ND_LVAR)
-        error("local variable.");
-
-    printf("  mov rax, rbp\n");
-    printf("  sub rax, %d\n", node->offset);
-    printf("  push rax\n");
-}
 
 void gen(Node* node) {
     switch (node->kind) {
+    case ND_IF: {
+        int i = count();
+        gen(node->cond);
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .Lelse%d\n", i);
+        gen(node->then);
+        printf("  jmp .Lend%d\n", i);
+        printf(".Lelse%d:\n", i);
+        printf(".Lend%d:\n", i);
+        return;
+    }
     case ND_NUM:
         printf("  push %d\n", node->val);
         return;
@@ -43,18 +44,6 @@ void gen(Node* node) {
         printf("  pop rbp\n");
         printf("  ret\n");
         return;
-    case ND_IF: {
-        int i = count();
-        gen(node->cond);
-        printf("  pop rax\n");
-        printf("  cmp rax, 0\n");
-        printf("  je .Lelse%d\n", i);
-        gen(node->then);
-        printf("  jmp .Lend%d\n", i);
-        printf(".Lelse%d:\n", i);
-        printf(".Lend%d:\n", i);
-        return;
-    }
     }
 
     gen(node->lhs);
@@ -118,4 +107,18 @@ void error(char* fmt, ...) {
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     exit(1);
+}
+
+static int count(void) {
+    static int i = 0;
+    return i++;
+}
+
+static void gen_lval(Node* node) {
+    if (node->kind != ND_LVAR)
+        error("local variable.");
+
+    printf("  mov rax, rbp\n");
+    printf("  sub rax, %d\n", node->offset);
+    printf("  push rax\n");
 }
