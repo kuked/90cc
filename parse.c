@@ -1,67 +1,68 @@
 #include "90cc.h"
 
+static Node* stmt(void);
+static Node* expr(void);
+static Node* assign(void);
+static Node* equality(void);
+static Node* relational(void);
+static Node* add(void);
+static Node* mul(void);
+static Node* unary(void);
+static Node* primary(void);
+
+static bool at_eof(void);
+static bool consume(char* op);
+static Token* consume_ident(void);
+static void expect(char* op);
+static int expect_number(void);
+static Node* new_node(NodeKind kind, Node* lhs, Node* rhs);
+static Node* new_node_num(int val);
+static LVar* find_lvar(Token *tok);
+
 Node* code[100];
 
-bool consume(char *op) {
-    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF && token->kind != TK_ELSE) ||
-        (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
-        return false;
-    token = token->next;
-    return true;
+void program(void) {
+    int i = 0;
+    while (!at_eof())
+        code[i++] = stmt();
+    code[i] = NULL;
 }
 
-Token* consume_ident(void) {
-    if (token->kind == TK_IDENT) {
-        Token *tok = token;
-        token = token->next;
-        return tok;
+static Node* stmt(void) {
+    Node* node;
+
+    if (consume("return")) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_RETURN;
+        node->lhs = expr();
+    } else if (consume("if")) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_IF;
+        expect("(");
+        node->cond = expr();
+        expect(")");
+        node->then = stmt();
+        if (consume("else")) {
+            node->els = stmt();
+        }        
+        return node;
+    } else {
+        node = expr();
     }
-    return NULL;
-}
 
-
-void expect(char* op) {
-    if (token->kind != TK_RESERVED || (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
-        error_at(token->str, "It's not '%s'.", op);
-    token = token->next;
-}
-
-int expect_number() {
-    if (token->kind != TK_NUM)
-        error_at(token->str, "It's not a number");
-    int val = token->val;
-    token = token->next;
-    return val;
-}
-
-bool at_eof() {
-    return token->kind == TK_EOF;
-}
-
-Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
-    Node* node = calloc(1, sizeof(Node));
-    node->kind = kind;
-    node->lhs = lhs;
-    node->rhs = rhs;
+    expect(";");
     return node;
 }
 
-Node* new_node_num(int val) {
-    Node* node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
-    node->val = val;
-    return node;
+static Node* unary(void) {
+    if (consume("+"))
+        return unary();
+    if (consume("-"))
+        return new_node(ND_SUB, new_node_num(0), unary());
+    return primary();
 }
 
-// Searchs for variables by name. If not found, returns NULL.
-LVar* find_lvar(Token *tok) {
-    for (LVar *var = locals; var; var = var->next)
-        if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
-            return var;
-    return NULL;
-}
-
-Node* primary(void) {
+static Node* primary(void) {
     if (consume("(")) {
         Node* node = expr();
         expect(")");
@@ -91,15 +92,7 @@ Node* primary(void) {
     return new_node_num(expect_number());
 }
 
-Node* unary(void) {
-    if (consume("+"))
-        return unary();
-    if (consume("-"))
-        return new_node(ND_SUB, new_node_num(0), unary());
-    return primary();
-}
-
-Node* mul(void) {
+static Node* mul(void) {
     Node* node = unary();
 
     for (;;) {
@@ -112,7 +105,7 @@ Node* mul(void) {
     }
 }
 
-Node* add(void) {
+static Node* add(void) {
     Node* node = mul();
 
     for (;;) {
@@ -125,7 +118,7 @@ Node* add(void) {
     }
 }
 
-Node* relational(void) {
+static Node* relational(void) {
     Node* node = add();
 
     for (;;) {
@@ -143,7 +136,7 @@ Node* relational(void) {
     return node;
 }
 
-Node* equality(void) {
+static Node* equality(void) {
     Node* node = relational();
 
     for (;;) {
@@ -156,46 +149,72 @@ Node* equality(void) {
     }
 }
 
-Node* assign(void) {
+static Node* assign(void) {
     Node *node = equality();
     if (consume("="))
         node = new_node(ND_ASSIGN, node, assign());
     return node;
 }
 
-Node* expr(void) {
+static Node* expr(void) {
     return assign();
 }
 
-Node* stmt() {
-    Node* node;
+static bool at_eof(void) {
+    return token->kind == TK_EOF;
+}
 
-    if (consume("return")) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_RETURN;
-        node->lhs = expr();
-    } else if (consume("if")) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_IF;
-        expect("(");
-        node->cond = expr();
-        expect(")");
-        node->then = stmt();
-        if (consume("else")) {
-            node->els = stmt();
-        }
-        return node;
-    } else {
-        node = expr();
+
+bool consume(char *op) {
+    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF && token->kind != TK_ELSE) ||
+        (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
+        return false;
+    token = token->next;
+    return true;
+}
+
+Token* consume_ident(void) {
+    if (token->kind == TK_IDENT) {
+        Token *tok = token;
+        token = token->next;
+        return tok;
     }
+    return NULL;
+}
+ 
+static void expect(char* op) {
+    if (token->kind != TK_RESERVED || (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
+        error_at(token->str, "It's not '%s'.", op);
+    token = token->next;
+}
 
-    expect(";");
+static int expect_number(void) {
+    if (token->kind != TK_NUM)
+        error_at(token->str, "It's not a number");
+    int val = token->val;
+    token = token->next;
+    return val;
+}
+
+static Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
+    Node* node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    node->lhs = lhs;
+    node->rhs = rhs;
     return node;
 }
 
-void program(void) {
-    int i = 0;
-    while (!at_eof())
-        code[i++] = stmt();
-    code[i] = NULL;
+static Node* new_node_num(int val) {
+    Node* node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->val = val;
+    return node;
+}
+
+// Searchs for variables by name. If not found, returns NULL.
+static LVar* find_lvar(Token *tok) {
+    for (LVar *var = locals; var; var = var->next)
+        if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+            return var;
+    return NULL;
 }
