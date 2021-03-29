@@ -40,6 +40,7 @@ struct Node {
 
     Node* cond;
     Node* then;
+    Node* els;
 };
 
 typedef enum {
@@ -47,6 +48,7 @@ typedef enum {
     TK_IDENT,
     TK_NUM,
     TK_IF,
+    TK_ELSE,
     TK_RETURN,
     TK_EOF,
 } TokenKind;

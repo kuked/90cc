@@ -3,7 +3,7 @@
 Node* code[100];
 
 bool consume(char *op) {
-    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF) ||
+    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF && token->kind != TK_ELSE) ||
         (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
         return false;
     token = token->next;
@@ -181,6 +181,9 @@ Node* stmt() {
         node->cond = expr();
         expect(")");
         node->then = stmt();
+        if (consume("else")) {
+            node->els = stmt();
+        }
         return node;
     } else {
         node = expr();
