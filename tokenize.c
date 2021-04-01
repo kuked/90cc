@@ -1,6 +1,7 @@
 #include "90cc.h"
 
 static bool is_alnum(char c);
+static int is_keyword(char* p);
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
 
 Token* token;
@@ -44,17 +45,10 @@ void tokenize(void) {
             continue;
         }
 
-        if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
-            cur = new_token(TK_RETURN, cur, p, 6);
-            p += 6;
-            continue;
-        } else if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
-            cur = new_token(TK_IF, cur, p, 2);
-            p += 2;
-            continue;
-        } else if (strncmp(p, "else", 4) == 0 && !is_alnum(p[4])) {
-            cur = new_token(TK_ELSE, cur, p, 4);
-            p += 4;
+        int length;
+        if ((length = is_keyword(p)) != 0) {
+            cur = new_token(TK_KEYWORD, cur, p, length);
+            p += length;
             continue;
         }
 
@@ -84,6 +78,19 @@ void tokenize(void) {
 // Determine whether alphanumeric characters or underscores are used.
 static bool is_alnum(char c) {
     return isalnum(c) != 0 || c == '_';
+}
+
+// Check if a chunk is a keyword and return its length.
+static int is_keyword(char* p) {
+    static char* keywords[] = {"return", "if", "else"};
+
+    for (int i = 0; i < sizeof(keywords) / sizeof(*keywords); i++) {
+        int length = strlen(keywords[i]);
+        if (strncmp(p, keywords[i], length) == 0 && !is_alnum(p[length])) {
+            return length;
+        }
+    }
+    return 0;
 }
 
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {

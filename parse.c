@@ -166,7 +166,7 @@ static bool at_eof(void) {
 
 
 bool consume(char *op) {
-    if ((token->kind != TK_RESERVED && token->kind != TK_RETURN && token->kind != TK_IF && token->kind != TK_ELSE) ||
+    if ((token->kind != TK_RESERVED && token->kind != TK_KEYWORD) ||
         (int)strlen(op) != token->len || memcmp(token->str, op, token->len))
         return false;
     token = token->next;

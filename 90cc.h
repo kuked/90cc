@@ -47,9 +47,7 @@ typedef enum {
     TK_RESERVED,
     TK_IDENT,
     TK_NUM,
-    TK_IF,
-    TK_ELSE,
-    TK_RETURN,
+    TK_KEYWORD,
     TK_EOF,
 } TokenKind;
 
