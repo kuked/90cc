@@ -46,6 +46,14 @@ static Node* stmt(void) {
             node->els = stmt();
         }        
         return node;
+    } else if (consume("while")) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_WHILE;
+        expect("(");
+        node->cond = expr();
+        expect(")");
+        node->then = stmt();
+        return node;
     } else {
         node = expr();
     }

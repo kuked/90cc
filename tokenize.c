@@ -82,7 +82,7 @@ static bool is_alnum(char c) {
 
 // Check if a chunk is a keyword and return its length.
 static int is_keyword(char* p) {
-    static char* keywords[] = {"return", "if", "else"};
+    static char* keywords[] = {"return", "if", "else", "while"};
 
     for (int i = 0; i < sizeof(keywords) / sizeof(*keywords); i++) {
         int length = strlen(keywords[i]);
