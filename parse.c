@@ -15,6 +15,7 @@ static bool consume(char* op);
 static Token* consume_ident(void);
 static void expect(char* op);
 static int expect_number(void);
+static Node* new_node(NodeKind kind);
 static Node* new_binary(NodeKind kind, Node* lhs, Node* rhs);
 static Node* new_node_num(int val);
 static LVar* find_lvar(Token *tok);
@@ -32,12 +33,10 @@ static Node* stmt(void) {
     Node* node;
 
     if (consume("return")) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_RETURN;
+        node = new_node(ND_RETURN);
         node->lhs = expr();
     } else if (consume("if")) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_IF;
+        node = new_node(ND_IF);
         expect("(");
         node->cond = expr();
         expect(")");
@@ -47,8 +46,7 @@ static Node* stmt(void) {
         }        
         return node;
     } else if (consume("for")) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_FOR;
+        node = new_node(ND_FOR);
         expect("(");
         node->init = stmt();
         node->cond = expr();
@@ -58,8 +56,7 @@ static Node* stmt(void) {
         node->then = stmt();
         return node;
     } else if (consume("while")) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_WHILE;
+        node = new_node(ND_WHILE);
         expect("(");
         node->cond = expr();
         expect(")");
@@ -90,8 +87,7 @@ static Node* primary(void) {
 
     Token* tok = consume_ident();
     if (tok) {
-        Node* node = calloc(1, sizeof(Node));
-        node->kind = ND_LVAR;
+        Node* node = new_node(ND_LVAR);
 
         LVar* lvar = find_lvar(tok);
         if (lvar) {
@@ -214,18 +210,21 @@ static int expect_number(void) {
     token = token->next;
     return val;
 }
-
-static Node* new_binary(NodeKind kind, Node* lhs, Node* rhs) {
+static Node* new_node(NodeKind kind) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = kind;
+    return node;
+}
+
+static Node* new_binary(NodeKind kind, Node* lhs, Node* rhs) {
+    Node* node = new_node(kind);
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
 }
 
 static Node* new_node_num(int val) {
-    Node* node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
+    Node* node = new_node(ND_NUM);
     node->val = val;
     return node;
 }
