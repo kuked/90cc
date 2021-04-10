@@ -15,7 +15,7 @@ static bool consume(char* op);
 static Token* consume_ident(void);
 static void expect(char* op);
 static int expect_number(void);
-static Node* new_node(NodeKind kind, Node* lhs, Node* rhs);
+static Node* new_binary(NodeKind kind, Node* lhs, Node* rhs);
 static Node* new_node_num(int val);
 static LVar* find_lvar(Token *tok);
 
@@ -77,7 +77,7 @@ static Node* unary(void) {
     if (consume("+"))
         return unary();
     if (consume("-"))
-        return new_node(ND_SUB, new_node_num(0), unary());
+        return new_binary(ND_SUB, new_node_num(0), unary());
     return primary();
 }
 
@@ -116,9 +116,9 @@ static Node* mul(void) {
 
     for (;;) {
         if (consume("*"))
-            node = new_node(ND_MUL, node, unary());
+            node = new_binary(ND_MUL, node, unary());
         else if (consume("/"))
-            node = new_node(ND_DIV, node, unary());
+            node = new_binary(ND_DIV, node, unary());
         else
             return node;
     }
@@ -129,9 +129,9 @@ static Node* add(void) {
 
     for (;;) {
         if (consume("+"))
-            node = new_node(ND_ADD, node, mul());
+            node = new_binary(ND_ADD, node, mul());
         else if (consume("-"))
-            node = new_node(ND_SUB, node, mul());
+            node = new_binary(ND_SUB, node, mul());
         else
             return node;
     }
@@ -142,13 +142,13 @@ static Node* relational(void) {
 
     for (;;) {
         if (consume("<"))
-            node = new_node(ND_LT, node, add());
+            node = new_binary(ND_LT, node, add());
         else if (consume("<="))
-            node = new_node(ND_LE, node, add());
+            node = new_binary(ND_LE, node, add());
         else if (consume(">"))
-            node = new_node(ND_GT, node, add());
+            node = new_binary(ND_GT, node, add());
         else if (consume(">="))
-            node = new_node(ND_GE, node, add());
+            node = new_binary(ND_GE, node, add());
         else
             return node;
     }
@@ -160,9 +160,9 @@ static Node* equality(void) {
 
     for (;;) {
         if (consume("=="))
-            node = new_node(ND_EQ, node, relational());
+            node = new_binary(ND_EQ, node, relational());
         if (consume("!="))
-            node = new_node(ND_NQ, node, relational());
+            node = new_binary(ND_NQ, node, relational());
         else
             return node;
     }
@@ -171,7 +171,7 @@ static Node* equality(void) {
 static Node* assign(void) {
     Node *node = equality();
     if (consume("="))
-        node = new_node(ND_ASSIGN, node, assign());
+        node = new_binary(ND_ASSIGN, node, assign());
     return node;
 }
 
@@ -215,7 +215,7 @@ static int expect_number(void) {
     return val;
 }
 
-static Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
+static Node* new_binary(NodeKind kind, Node* lhs, Node* rhs) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = kind;
     node->lhs = lhs;
