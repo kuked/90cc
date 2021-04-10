@@ -66,4 +66,5 @@ assert 90 "a = 9; b = 10; if (a != b) return a * b; return a + b;"
 assert 19 "a = 9; b = 10; if (a == b) return a * b; else return a + b;"
 assert 90 "a = 9; b = 10; if (a != b) return a * b; else return a + b;"
 assert 255 "i = 0; while (i < 255) i = i + 1; return i;"
+assert 55 "b = 0; for (a = 0; a <= 10; a = a + 1) b = b + a; return b;"
 echo OK

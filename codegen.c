@@ -21,6 +21,20 @@ void gen(Node* node) {
         printf(".Lend%d:\n", i);
         return;
     }
+    case ND_FOR: {
+        int i = count();
+        gen(node->init);
+        printf(".Lbegin%d:\n", i);
+        gen(node->cond);
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .Lend%d\n", i);
+        gen(node->then);
+        gen(node->inc);
+        printf("  jmp .Lbegin%d\n", i);
+        printf(".Lend%d:\n", i);
+        return;
+    }
     case ND_WHILE: {
         int i = count();
         printf(".Lbegin%d:\n", i);

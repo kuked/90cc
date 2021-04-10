@@ -26,6 +26,7 @@ typedef enum {
 
     ND_IF,        // if
     ND_RETURN,    // return
+    ND_FOR,       // for
     ND_WHILE,     // while
 
     ND_NUM,  // integer
@@ -39,7 +40,9 @@ struct Node {
     int val;
     int offset;
 
+    Node* init;
     Node* cond;
+    Node* inc;
     Node* then;
     Node* els;
 };
